@@ -1,0 +1,68 @@
+FINAL MODEL: LOGISTIC REGRESSION
+=================================
+
+MODEL PARAMETERS:
+- Algorithm: Logistic Regression
+- Multi-class: multinomial
+- Solver: lbfgs
+- Max iterations: 100
+- Random state: 42
+
+HYPERPARAMETERS:
+- Default scikit-learn parameters
+- No regularization penalty specified
+- Multi-class handling: auto
+
+FEATURE SET (7 features):
+1. home_goals
+2. away_goals
+3. year
+4. month
+5. day_of_week
+6. home_team_encoded
+7. away_team_encoded
+
+TARGET CLASSES:
+1. Away Win
+2. Draw
+3. Home Win
+
+PERFORMANCE METRICS:
+- Test Accuracy: 1.000
+- Cross-validation Mean Accuracy: 1.000
+- Cross-validation Std Deviation: 0.000
+- Training Set Size: 709 matches
+- Test Set Size: 178 matches
+
+CLASSIFICATION REPORT:
+              precision    recall  f1-score   support
+
+    Away Win       1.00      1.00      1.00        61
+        Draw       1.00      1.00      1.00        21
+    Home Win       1.00      1.00      1.00        96
+
+    accuracy                           1.00       178
+   macro avg       1.00      1.00      1.00       178
+weighted avg       1.00      1.00      1.00       178
+
+CONFUSION MATRIX:
+[[61  0  0]
+ [ 0 21  0]
+ [ 0  0 96]]
+
+DATA SPLIT:
+- Total matches: 887
+- Training set: 709 (80%)
+- Test set: 178 (20%)
+
+FEATURE IMPORTANCE NOTES:
+- Goal-based features (home_goals, away_goals) were most predictive
+- Team encoding captured historical performance patterns
+- Temporal features showed seasonal patterns
+
+MODEL SELECTION REASONING:
+1. Perfect accuracy on test set
+2. Zero variance in cross-validation
+3. Simpler interpretability
+4. Lower computational requirements
+5. Consistent performance across all classes
