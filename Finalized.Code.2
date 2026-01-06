@@ -1,0 +1,98 @@
+# Save the final model
+import joblib
+joblib.dump(best_model, 'logistic_regression_model.pkl')
+joblib.dump(scaler, 'feature_scaler.pkl')
+
+# Load and use the model
+loaded_model = joblib.load('logistic_regression_model.pkl')
+predictions = loaded_model.predict(X_test)
+
+# Create prediction function
+def predict_match_outcome(home_team, away_team, home_goals, away_goals, date):
+    """
+    Predict match outcome using trained model
+    """
+    # Feature engineering
+    features = preprocess_features(home_team, away_team, home_goals, away_goals, date)
+    
+    # Scale features
+    features_scaled = scaler.transform([features])
+    
+    # Make prediction
+    prediction = loaded_model.predict(features_scaled)[0]
+    probability = loaded_model.predict_proba(features_scaled)[0]
+    
+    return {
+        'predicted_outcome': prediction,
+        'probability': dict(zip(loaded_model.classes_, probability)),
+        'confidence': max(probability)
+    }
+
+# Create additional visualizations
+def create_performance_visualizations():
+    """
+    Create comprehensive visualizations for the report
+    """
+    fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+    
+    # 1. Model comparison bar chart
+    models = ['Logistic Regression', 'Random Forest', 'SVM']
+    accuracies = [1.000, 0.989, 1.000]
+    axes[0,0].bar(models, accuracies, color=['green', 'blue', 'orange'])
+    axes[0,0].set_title('Model Accuracy Comparison')
+    axes[0,0].set_ylabel('Accuracy')
+    axes[0,0].set_ylim([0.98, 1.01])
+    
+    # 2. Class distribution
+    outcome_counts = y_test.value_counts()
+    axes[0,1].pie(outcome_counts, labels=outcome_counts.index, autopct='%1.1f%%')
+    axes[0,1].set_title('Match Outcome Distribution in Test Set')
+    
+    # 3. Confusion matrix
+    cm = confusion_matrix(y_test, y_pred)
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+                xticklabels=best_model.classes_,
+                yticklabels=best_model.classes_,
+                ax=axes[1,0])
+    axes[1,0].set_title('Confusion Matrix')
+    axes[1,0].set_xlabel('Predicted')
+    axes[1,0].set_ylabel('Actual')
+    
+    # 4. Feature importance (for Random Forest)
+    if hasattr(rf_model, 'feature_importances_'):
+        importances = rf_model.feature_importances_
+        features = X.columns
+        indices = np.argsort(importances)[::-1]
+        axes[1,1].barh(range(len(indices)), importances[indices])
+        axes[1,1].set_yticks(range(len(indices)))
+        axes[1,1].set_yticklabels([features[i] for i in indices])
+        axes[1,1].set_title('Random Forest Feature Importances')
+    
+    plt.tight_layout()
+    plt.savefig('model_performance_visualizations.png', dpi=300, bbox_inches='tight')
+    plt.show()
+
+# Generate comprehensive report
+def generate_model_report():
+    """
+    Generate detailed model performance report
+    """
+    report = {
+        'model_name': 'Logistic Regression',
+        'test_accuracy': accuracy_score(y_test, y_pred),
+        'cv_mean_accuracy': cv_scores.mean(),
+        'cv_std': cv_scores.std(),
+        'classification_report': classification_report(y_test, y_pred, output_dict=True),
+        'confusion_matrix': confusion_matrix(y_test, y_pred).tolist(),
+        'feature_set': list(X.columns),
+        'training_samples': len(X_train),
+        'test_samples': len(X_test),
+        'class_distribution': dict(y_test.value_counts())
+    }
+    
+    # Save report
+    import json
+    with open('model_report.json', 'w') as f:
+        json.dump(report, f, indent=4)
+    
+    return report
